@@ -390,3 +390,41 @@ sys_pipe(void)
   fd[1] = fd1;
   return 0;
 }
+
+int
+sys_mprotect(void)
+{
+    char *p;
+    int len;
+    //check ptr
+
+    if(argptr(0,&p, sizeof(void *)) < 0)
+        return -1;
+    if(p == NULL)
+        return -1
+    if(argint(1, &len) < 0)
+        return -1;
+    
+    
+    return mprotect(p,len);
+}
+
+
+int
+sys_munprotect(void)
+{
+    char *p;
+    int len;
+    //check ptr
+
+    if(argptr(0,&p, sizeof(void *)) < 0)
+        return -1;
+    if(p == NULL)
+        return -1
+    if(argint(1, &len) < 0)
+        return -1;
+    
+    
+    return munprotect(p,len);
+}
+

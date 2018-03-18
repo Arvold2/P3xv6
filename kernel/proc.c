@@ -443,4 +443,30 @@ procdump(void)
   }
 }
 
+int
+mprotect(void *addr, int len)
+{
+    pte_t *pte;
+    uint pa;
 
+    //check if addr is page aligned
+    if((uint)addr % PGSIZE != 0)
+        panic("mprotect: address not page aligned");
+        return -1;
+    if(len <= 0)
+        return -1;
+
+    for(int i = 0; i< len; i++)
+        if((pte = walkpgdir(p->pgdir,addr+i,0)) == 0)
+            return -1;
+        pa = PTE_ADDR(*pte);
+        
+    return 0;
+}
+
+int 
+munprotect(void *addr, int len)
+{
+
+    return 0;
+}
