@@ -11,11 +11,17 @@ make
 gcc  -I include -nostdinc -Wall -Werror -ggdb -fno-pic -fno-builtin -fno-strict-aliasing -fno-stack-protector -m32 \
 	-M -MG kernel/vm.c -MF kernel/vm.d -MT kernel/vm.d -MT kernel/vm.o
 gcc  -I include -nostdinc -Wall -Werror -ggdb -fno-pic -fno-builtin -fno-strict-aliasing -fno-stack-protector -m32 \
+	-M -MG kernel/sysfile.c -MF kernel/sysfile.d -MT kernel/sysfile.d -MT kernel/sysfile.o
+gcc  -I include -nostdinc -Wall -Werror -ggdb -fno-pic -fno-builtin -fno-strict-aliasing -fno-stack-protector -m32 \
 	-M -MG kernel/syscall.c -MF kernel/syscall.d -MT kernel/syscall.d -MT kernel/syscall.o
 gcc  -I include -nostdinc -Wall -Werror -ggdb -fno-pic -fno-builtin -fno-strict-aliasing -fno-stack-protector -m32 \
 	-M -MG kernel/proc.c -MF kernel/proc.d -MT kernel/proc.d -MT kernel/proc.o
+gcc  -I include -nostdinc -Wall -Werror -ggdb -fno-pic -fno-builtin -fno-strict-aliasing -fno-stack-protector -m32 \
+	-M -MG kernel/exec.c -MF kernel/exec.d -MT kernel/exec.d -MT kernel/exec.o
+gcc  -I include -nostdinc -Wall -Werror -ggdb -fno-pic -fno-builtin -fno-strict-aliasing -fno-stack-protector -m32 -c -o kernel/exec.o kernel/exec.c
 gcc  -I include -nostdinc -Wall -Werror -ggdb -fno-pic -fno-builtin -fno-strict-aliasing -fno-stack-protector -m32 -c -o kernel/proc.o kernel/proc.c
 gcc  -I include -nostdinc -Wall -Werror -ggdb -fno-pic -fno-builtin -fno-strict-aliasing -fno-stack-protector -m32 -c -o kernel/syscall.o kernel/syscall.c
+gcc  -I include -nostdinc -Wall -Werror -ggdb -fno-pic -fno-builtin -fno-strict-aliasing -fno-stack-protector -m32 -c -o kernel/sysfile.o kernel/sysfile.c
 gcc  -I include -nostdinc -Wall -Werror -ggdb -fno-pic -fno-builtin -fno-strict-aliasing -fno-stack-protector -m32 -c -o kernel/vm.o kernel/vm.c
 ld  -m    elf_i386 -nostdlib --omagic \
 	--section-start=.text=0x100000 --entry=main --output=kernel/kernel \
@@ -24,15 +30,15 @@ ld  -m    elf_i386 -nostdlib --omagic \
 dd if=/dev/zero of=xv6.img count=10000
 10000+0 records in
 10000+0 records out
-5120000 bytes (5.1 MB, 4.9 MiB) copied, 0.0150142 s, 341 MB/s
+5120000 bytes (5.1 MB, 4.9 MiB) copied, 0.0141525 s, 362 MB/s
 dd if=kernel/bootblock of=xv6.img conv=notrunc
 1+0 records in
 1+0 records out
-512 bytes copied, 5.6451e-05 s, 9.1 MB/s
+512 bytes copied, 6.0434e-05 s, 8.5 MB/s
 dd if=kernel/kernel of=xv6.img seek=1 conv=notrunc
-240+1 records in
-240+1 records out
-122932 bytes (123 kB, 120 KiB) copied, 0.000371277 s, 331 MB/s
+239+1 records in
+239+1 records out
+122864 bytes (123 kB, 120 KiB) copied, 0.00038616 s, 318 MB/s
 
 
 test build PASSED
@@ -56,24 +62,24 @@ ld  -m    elf_i386 -nostdlib --omagic --entry=main --section-start=.text=0x1000 
 cp user/bin/tester fs/tester
 ./tools/mkfs fs.img fs
 used 29 (bit 1 ninode 26) free 29 total 1024
-cat
-init
-forktest
-zombie
-tester
-sh
-wc
-stressfs
 ln
+cat
 grep
-rm
 ls
-echo
-kill
-usertests
-mkdir
+rm
+tester
+zombie
+sh
 README
-balloc: first 414 blocks have been allocated
+mkdir
+forktest
+wc
+usertests
+echo
+stressfs
+init
+kill
+balloc: first 410 blocks have been allocated
 balloc: write bitmap block at sector 28
 rm user/bin/tester
 make qemu-nox 
@@ -94,7 +100,6 @@ $ tester
 tester
 null dereference: pid 4 tester: trap 14 err 4 on cpu 1 eip 0x103e addr 0x0--kill proc
 TEST PASSED
-
 
 test null PASSED (10 of 10)
  (null pointer dereference should kill process)
@@ -117,24 +122,24 @@ ld  -m    elf_i386 -nostdlib --omagic --entry=main --section-start=.text=0x1000 
 cp user/bin/tester fs/tester
 ./tools/mkfs fs.img fs
 used 29 (bit 1 ninode 26) free 29 total 1024
-cat
-init
-forktest
-zombie
-tester
-sh
-wc
-stressfs
 ln
+cat
 grep
-rm
 ls
-echo
-kill
-usertests
-mkdir
+rm
+tester
+zombie
+sh
 README
-balloc: first 414 blocks have been allocated
+mkdir
+forktest
+wc
+usertests
+echo
+stressfs
+init
+kill
+balloc: first 410 blocks have been allocated
 balloc: write bitmap block at sector 28
 rm user/bin/tester
 make qemu-nox 
@@ -178,24 +183,24 @@ ld  -m    elf_i386 -nostdlib --omagic --entry=main --section-start=.text=0x1000 
 cp user/bin/tester fs/tester
 ./tools/mkfs fs.img fs
 used 29 (bit 1 ninode 26) free 29 total 1024
-cat
-init
-forktest
-zombie
-tester
-sh
-wc
-stressfs
 ln
+cat
 grep
-rm
 ls
-echo
-kill
-usertests
-mkdir
+rm
+tester
+zombie
+sh
 README
-balloc: first 416 blocks have been allocated
+mkdir
+forktest
+wc
+usertests
+echo
+stressfs
+init
+kill
+balloc: first 412 blocks have been allocated
 balloc: write bitmap block at sector 28
 rm user/bin/tester
 make qemu-nox 
@@ -217,69 +222,10 @@ tester
 user/tester.c: 34 assert failed (write(fd, arg, 1024) == -1)
 TEST FAILED
 
+
 test bounds FAILED (0 of 10)
  (syscall argument checks (null page, code/heap boundaries))
  tester failed
 
-starting protect_args
-
-**********************************************************************
-
-Test protect_args
-mprotect/munprotect arguments
-
-**********************************************************************
-Running xv6 user progam /u/c/s/cs537-1/ta/tests/3b-new/ctests/protect_args.c
-Trying to build project using make
-make
-gcc  -I include -nostdinc -Wall -Werror -ggdb -fno-pic -fno-builtin -fno-strict-aliasing -fno-stack-protector -m32 \
-	-M -MG user/tester.c -MF user/tester.d -MT user/tester.d -MT user/tester.o
-gcc  -I include -nostdinc -Wall -Werror -ggdb -fno-pic -fno-builtin -fno-strict-aliasing -fno-stack-protector -m32 -c -o user/tester.o user/tester.c
-ld  -m    elf_i386 -nostdlib --omagic --entry=main --section-start=.text=0x1000 --output=user/bin/tester user/tester.o user/ulib.o user/usys.o user/printf.o user/umalloc.o
-cp user/bin/tester fs/tester
-./tools/mkfs fs.img fs
-used 29 (bit 1 ninode 26) free 29 total 1024
-cat
-init
-forktest
-zombie
-tester
-sh
-wc
-stressfs
-ln
-grep
-rm
-ls
-echo
-kill
-usertests
-mkdir
-README
-balloc: first 417 blocks have been allocated
-balloc: write bitmap block at sector 28
-rm user/bin/tester
-make qemu-nox 
-Ctrl+a h for help
-/u/c/s/cs537-1/ta/tools/qemu -nographic -hdb fs.img xv6.img -smp 2
-WARNING: Image format was not specified for 'fs.img' and probing guessed raw.
-         Automatically detecting the format is dangerous for raw images, write operations on block 0 will be restricted.
-         Specify the 'raw' format explicitly to remove the restrictions.
-WARNING: Image format was not specified for 'xv6.img' and probing guessed raw.
-         Automatically detecting the format is dangerous for raw images, write operations on block 0 will be restricted.
-         Specify the 'raw' format explicitly to remove the restrictions.
-xv6...
-lapicinit: 1 0xfee00000
-cpu1: starting
-cpu0: starting
-init: starting sh
-$ tester
-tester
-
-
-test protect_args FAILED (0 of 10)
- (mprotect/munprotect arguments)
- User interrupted test
-
-Skipped 3 tests.
+Skipped 4 tests.
 To keep testing after failing a test, use flag '-c' or '--continue'
