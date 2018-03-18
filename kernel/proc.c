@@ -92,7 +92,7 @@ userinit(void)
   p->tf->ss = p->tf->ds;
   p->tf->eflags = FL_IF;
   p->tf->esp = PGSIZE;
-  p->tf->eip = 0;  // beginning of initcode.S
+  p->tf->eip = 0x0000;  // beginning of initcode.S
 
   safestrcpy(p->name, "initcode", sizeof(p->name));
   p->cwd = namei("/");
@@ -133,7 +133,6 @@ fork(void)
   // Allocate process.
   if((np = allocproc()) == 0)
     return -1;
-
   // Copy process state from p. Should copy over page table
   if((np->pgdir = copyuvm(proc->pgdir, proc->sz)) == 0){
     kfree(np->kstack);
@@ -144,7 +143,6 @@ fork(void)
   np->sz = proc->sz;
   np->parent = proc;
   *np->tf = *proc->tf;
-
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
 
@@ -447,26 +445,51 @@ int
 mprotect(void *addr, int len)
 {
     pte_t *pte;
-    uint pa;
-
+   // uint pa;
+    
     //check if addr is page aligned
-    if((uint)addr % PGSIZE != 0)
+    if((uint)addr % PGSIZE != 0) {
         panic("mprotect: address not page aligned");
         return -1;
+    }
+    
     if(len <= 0)
         return -1;
 
-    for(int i = 0; i< len; i++)
-        if((pte = walkpgdir(p->pgdir,addr+i,0)) == 0)
+    // Walks from addr to addr+len and changes the write bit
+    for(int i = 0; i< len; i++) {
+        if((pte = (pte_t*)uva2ka(proc->pgdir,addr+i)) == 0)
             return -1;
-        pa = PTE_ADDR(*pte);
-        
+       // pa = PTE_ADDR(*pte);
+       //if ((pte ^ 0x002
+ 	//&pte ^= 0x002;
+    }
     return 0;
 }
 
 int 
 munprotect(void *addr, int len)
 {
+
+    pte_t *pte;
+    //uint pa;
+    
+    //check if addr is page aligned
+    if((uint)addr % PGSIZE != 0) {
+        panic("mprotect: address not page aligned");
+        return -1;
+    }
+
+    if(len <= 0)
+        return -1;
+
+    // Walks from addr to addr+len and changes the write bit
+    for(int i = 0; i< len; i++) {
+        if((pte = (pte_t*)uva2ka(proc->pgdir,addr+i)) == 0)
+            return -1;
+    }
+       // pa = PTE_ADDR(*pte);
+       // pte = 0x002;
 
     return 0;
 }

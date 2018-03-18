@@ -31,8 +31,13 @@ exec(char *path, char **argv)
   if((pgdir = setupkvm()) == 0)
     goto bad;
 
+  if ((sz = allocuvm(pgdir,0,PGSIZE)) == 0)
+	goto bad;
+
   // Load program into memory. (If accessed page there then page faults?)
   sz = PGSIZE;
+
+	
 
   for(i=0, off=elf.phoff; i<elf.phnum; i++, off+=sizeof(ph)){
 //Reads a program header off of the disk

@@ -401,7 +401,7 @@ sys_mprotect(void)
     if(argptr(0,&p, sizeof(void *)) < 0)
         return -1;
     if(p == NULL)
-        return -1
+        return -1;
     if(argint(1, &len) < 0)
         return -1;
     
@@ -420,7 +420,7 @@ sys_munprotect(void)
     if(argptr(0,&p, sizeof(void *)) < 0)
         return -1;
     if(p == NULL)
-        return -1
+        return -1;
     if(argint(1, &len) < 0)
         return -1;
     
