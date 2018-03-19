@@ -446,10 +446,11 @@ mprotect(void *addr, int len)
 {
     pte_t *pte;
    // uint pa;
+    if((uint)addr >= proc->sz || (uint)(addr + len*PGSIZE) >= proc->sz || (uint)addr < PGSIZE)
+        return -1;
     
     //check if addr is page aligned
     if((uint)addr % PGSIZE != 0) {
-        panic("mprotect: address not page aligned");
         return -1;
     }
     
@@ -473,10 +474,11 @@ munprotect(void *addr, int len)
 
     pte_t *pte;
     //uint pa;
-    
+   if((uint)addr >= proc->sz || (uint)(addr + len*PGSIZE) >= proc->sz || (uint)addr < PGSIZE)
+        return -1;
+
     //check if addr is page aligned
     if((uint)addr % PGSIZE != 0) {
-        panic("mprotect: address not page aligned");
         return -1;
     }
 
