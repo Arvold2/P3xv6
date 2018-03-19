@@ -84,14 +84,14 @@ userinit(void)
   if((p->pgdir = setupkvm()) == 0)
     panic("userinit: out of memory?");
   inituvm(p->pgdir, _binary_initcode_start, (int)_binary_initcode_size);
-  p->sz = PGSIZE;
+  p->sz = PGSIZE*2;
   memset(p->tf, 0, sizeof(*p->tf));
-  p->tf->cs = (SEG_UCODE << 3) | DPL_USER;
-  p->tf->ds = (SEG_UDATA << 3) | DPL_USER;
+  p->tf->cs = ((SEG_UCODE << 3) | DPL_USER);
+  p->tf->ds = ((SEG_UDATA << 3) | DPL_USER);
   p->tf->es = p->tf->ds;
   p->tf->ss = p->tf->ds;
   p->tf->eflags = FL_IF;
-  p->tf->esp = PGSIZE;
+  p->tf->esp = PGSIZE*2;
   p->tf->eip = 0x1000;  // beginning of initcode.S
 
   safestrcpy(p->name, "initcode", sizeof(p->name));
