@@ -315,8 +315,15 @@ copyuvm(pde_t *pgdir, uint sz)
     if((mem = kalloc()) == 0)
       goto bad;
     memmove(mem, (char*)pa, PGSIZE);
-    if(mappages(d, (void*)i, PGSIZE, PADDR(mem), PTE_W|PTE_U) < 0)
-      goto bad;
+    if((*pte & PTE_W) == 0){
+    
+        if(mappages(d, (void*)i, PGSIZE, PADDR(mem), PTE_U & ~PTE_W) < 0)
+        goto bad;
+    }
+    else{  
+        if(mappages(d, (void*)i, PGSIZE, PADDR(mem), PTE_W|PTE_U) < 0)
+        goto bad;
+    }
   }
   return d;
 
@@ -363,4 +370,62 @@ copyout(pde_t *pgdir, uint va, void *p, uint len)
     va = va0 + PGSIZE;
   }
   return 0;
+}
+
+int
+mprotect(void *addr, int len)
+{
+    pte_t *pte;
+   // uint pa;
+    if((uint)addr >= proc->sz || (uint)(addr + len*PGSIZE) > proc->sz || (uint)addr < PGSIZE)
+        return -1;
+    
+    //check if addr is page aligned
+    if((uint)addr % PGSIZE != 0) {
+        return -1;
+    }
+    
+    if(len <= 0)
+        return -1;
+
+    // Walks from addr to addr+len and changes the write bit
+    for(int i = 0; i< len; i++) {
+        if((pte = walkpgdir(proc->pgdir, addr + i*PGSIZE, 0)) == 0)
+            return -1;
+        if(pte==0 || (*pte & PTE_P)==0)
+            return -1;
+        *pte = *pte & ~PTE_W;
+   }
+    lcr3(PADDR(proc->pgdir));
+    return 0;
+}
+
+int 
+munprotect(void *addr, int len)
+{
+
+    pte_t *pte;
+    //uint pa;
+   if((uint)addr >= proc->sz || (uint)(addr + len*PGSIZE) > proc->sz || (uint)addr < PGSIZE)
+        return -1;
+
+    //check if addr is page aligned
+    if((uint)addr % PGSIZE != 0) {
+        return -1;
+    }
+
+    if(len <= 0)
+        return -1;
+
+     // Walks from addr to addr+len and changes the write bit
+    for(int i = 0; i< len; i++) {
+        if((pte = walkpgdir(proc->pgdir, addr + i*PGSIZE, 1)) == 0)
+            return -1;
+        if(pte==0 || (*pte & PTE_P)==0)
+            return -1;
+       *pte = *pte | PTE_W;
+    }
+        lcr3(PADDR(proc->pgdir));
+    
+    return 0;
 }
